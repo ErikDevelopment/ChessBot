@@ -8,8 +8,8 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
 
+import javax.rmi.CORBA.Util;
 import java.awt.*;
-import java.time.temporal.TemporalAccessor;
 import java.util.Arrays;
 import java.util.List;
 
@@ -24,7 +24,7 @@ public class HelpCommand implements Command {
             builder.setColor(new Color(0x0064C8));
             builder.setTitle("Help menu: ");
             builder.setDescription("See list of commands, if you need help with anything else do \"" + Utils.getPrefix() + "support\".");
-            for (Command command : ChessBot.getCommands()) {
+            for (Command command : Utils.getCommands()) {
                 builder.addField(new MessageEmbed.Field(command.getName(), Utils.getPrefix() + command.getCommand(), false));
             }
             builder.setFooter("For more info about certain command, do \"" + Utils.getPrefix() + "help <command>\".");
@@ -32,7 +32,7 @@ public class HelpCommand implements Command {
         } else {
 
             Command command = null;
-            for (Command command1 : ChessBot.getCommands()) {
+            for (Command command1 : Utils.getCommands()) {
                 if (args[1].equalsIgnoreCase(command1.getCommand()) || args[1].equalsIgnoreCase(Utils.getPrefix() + command1.getCommand()) || command1.getAliases().contains(args[1].toLowerCase())) {
                     command = command1;
                 } else if (args[1].length() >= Utils.getPrefix().length()) {
@@ -87,7 +87,7 @@ public class HelpCommand implements Command {
             builder.setColor(new Color(0x0064C8));
             builder.setTitle("Help menu: ");
             builder.setDescription("See list of commands, if you need help with anything else do \"" + Utils.getPrefix() + "support\".");
-            for (Command command : ChessBot.getCommands()) {
+            for (Command command : Utils.getCommands()) {
                 builder.addField(new MessageEmbed.Field(command.getName(), Utils.getPrefix() + command.getCommand(), false));
             }
             builder.setFooter("For more info about certain command, do \"" + Utils.getPrefix() + "help <command>\".");
@@ -95,7 +95,7 @@ public class HelpCommand implements Command {
         } else {
 
             Command command = null;
-            for (Command command1 : ChessBot.getCommands()) {
+            for (Command command1 : Utils.getCommands()) {
                 if (args[1].equalsIgnoreCase(command1.getCommand()) || args[1].equalsIgnoreCase(Utils.getPrefix() + command1.getCommand()) || command1.getAliases().contains(args[1].toLowerCase())) {
                     command = command1;
                 } else if (args[1].length() >= Utils.getPrefix().length()) {
@@ -154,11 +154,7 @@ public class HelpCommand implements Command {
 
     @Override
     public boolean isPrivate(boolean only) {
-        if (only) {
-            return false;
-        } else {
-            return true;
-        }
+        return !only;
     }
 
     @Override

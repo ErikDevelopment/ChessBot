@@ -7,12 +7,12 @@ import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
 import java.util.Arrays;
 import java.util.List;
 
-public class MoveCommand implements Command {
+public class AcceptCommand implements Command {
     private static boolean enabled = true;
-    private final static String[] aliases = {"m"};
+    private final static String[] aliases = {"ac"};
     @Override
     public void execute(GuildMessageReceivedEvent event, String[] args) {
-        event.getChannel().sendMessage("ok").queue();
+
     }
 
     @Override
@@ -22,12 +22,12 @@ public class MoveCommand implements Command {
 
     @Override
     public String getName() {
-        return "Move Command";
+        return "Accept Command";
     }
 
     @Override
     public String getDesc() {
-        return "Moves a chess piece from one place to other";
+        return "Accepts invitation to game";
     }
 
     @Override
@@ -38,7 +38,7 @@ public class MoveCommand implements Command {
 
     @Override
     public String getCommand() {
-        return "move";
+        return "accept";
     }
 
     @Override
@@ -53,7 +53,7 @@ public class MoveCommand implements Command {
 
     @Override
     public void setEnabled(boolean enabled) {
-        MoveCommand.enabled = enabled;
+        AcceptCommand.enabled = enabled;
     }
 
     @Override

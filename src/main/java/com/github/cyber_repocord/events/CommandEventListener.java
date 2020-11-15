@@ -13,10 +13,10 @@ import java.util.List;
 public class CommandEventListener extends ListenerAdapter {
     @Override
     public void onGuildMessageReceived(@NotNull GuildMessageReceivedEvent event) {
-        List<Command> commands = ChessBot.getCommands();
+        List<Command> commands = Utils.getCommands();
         String[] args = event.getMessage().getContentRaw().split(" ");
         String commandAsText = args[0];
-        if (event.getAuthor().getId().equals(ChessBot.getBotID())) return;
+        if (event.getAuthor().getId().equals(event.getJDA().getSelfUser().getId())) return;
         if (Utils.isBeta() && !event.getChannel().getId().equals(Utils.getBetaChannel())) {
             return;
         }
@@ -37,10 +37,10 @@ public class CommandEventListener extends ListenerAdapter {
 
     @Override
     public void onPrivateMessageReceived(@NotNull PrivateMessageReceivedEvent event) {
-        List<Command> commands = ChessBot.getCommands();
+        List<Command> commands = Utils.getCommands();
         String[] args = event.getMessage().getContentRaw().split(" ");
         String commandAsText = args[0];
-        if (event.getAuthor().getId().equals(ChessBot.getBotID())) return;
+        if (event.getAuthor().getId().equals(event.getJDA().getSelfUser().getId())) return;
         if (commandAsText.length() >= Utils.getPrefix().length()) {
             commandAsText = commandAsText.substring(0, Utils.getPrefix().length());
             if (!commandAsText.equalsIgnoreCase(Utils.getPrefix())) {

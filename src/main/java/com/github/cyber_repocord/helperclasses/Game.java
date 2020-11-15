@@ -3,7 +3,7 @@ package com.github.cyber_repocord.helperclasses;
 import java.util.Random;
 
 public class Game {
-    private int[][] board;
+    private byte[][] board;
     //         /\/\
     //         |  |
     //         y, x
@@ -30,7 +30,7 @@ public class Game {
             /|
             \/
      */
-    private boolean turn;
+    private boolean turn = true;
     private String player1;
     private String player2;
     private String channelId;
@@ -46,9 +46,21 @@ public class Game {
         this.player2 = player2;
         this.channelId = channelId;
         if (random) {
-            this.turn = new Random().nextBoolean();
+            if (new Random().nextBoolean()) {
+                this.player1 = player1;
+                this.player2 = player2;
+            } else {
+                this.player1 = player2;
+                this.player2 = player1;
+            }
         } else {
-            this.turn = turn;
+            if (turn) {
+                this.player1 = player1;
+                this.player2 = player2;
+            } else {
+                this.player1 = player2;
+                this.player2 = player1;
+            }
         }
         board = getDefaultBoard();
     }
@@ -97,88 +109,80 @@ public class Game {
         // always returns true (don't remove)
         return true;
     }
-    public int[][] getBoard() {
+    public byte[][] getBoard() {
         return board;
     }
-    public void setBoard(int[][] board) {
+    public void setBoard(byte[][] board) {
         if (board.length != 8) return;
         if (board[7].length != 8) return;
         this.board = board;
     }
     private boolean isNotOccupiedBySamePlayer(boolean turn, Position pos) {
-        if (turn) { if (board[pos.getX()][pos.getY()] > 6 || board[pos.getX()][pos.getY()] < 0) return false; else return true; }
-        else { if (board[pos.getX()][pos.getY()] < 7 || board[pos.getX()][pos.getY()] > 12) return false; else return true; }
+        if (turn) {
+            return board[pos.getX()][pos.getY()] <= 6 && board[pos.getX()][pos.getY()] >= 0;
+        }
+        else {
+            return board[pos.getX()][pos.getY()] >= 7 && board[pos.getX()][pos.getY()] <= 12;
+        }
     }
     public String getGameAsText() {
-        String game = "";
-        for (int i = 0; i < board.length; i++) {
-            for (int j = 0; j < board[i].length; j++) {
-                switch (board[i][j]) {
-                    case 0:
-                        if (i + (j % 2) % 2 == 1) game += "a";
-                        else game += "b";
-                        break;
-                }
-            }
-            game += "\n";
-        }
-        return game;
+        return getGameAsText(board);
     }
-    public static String getGameAsText(int[][] board) {
+    public static String getGameAsText(byte[][] board) {
         if (board.length != 8) return "";
         if (board[7].length != 8) return "";
-        String game = "";
+        StringBuilder game = new StringBuilder();
         for (int i = 0; i < board.length; i++) {
             for (int j = 0; j < board[i].length; j++) {
                 switch (board[i][j]) {
                     case 0:
-                        if ((i + (j % 2)) % 2 == 0) game += ":white_large_square:";
-                        else game += ":black_large_square:";
+                        if ((i + (j % 2)) % 2 == 0) game.append(":white_large_square:");
+                        else game.append(":black_large_square:");
                         break;
                     case 1:
-                        game += ":grinning:";
+                        game.append(":grinning:");
                         break;
                     case 2:
-                        game += ":smiley:";
+                        game.append(":smiley:");
                         break;
                     case 3:
-                        game += ":smile:";
+                        game.append(":smile:");
                         break;
                     case 4:
-                        game += ":grin:";
+                        game.append(":grin:");
                         break;
                     case 5:
-                        game += ":laughing:";
+                        game.append(":laughing:");
                         break;
                     case 6:
-                        game += ":sweat_smile:";
+                        game.append(":sweat_smile:");
                         break;
                     case 7:
-                        game += ":joy:";
+                        game.append(":joy:");
                         break;
                     case 8:
-                        game += ":rofl:";
+                        game.append(":rofl:");
                         break;
                     case 9:
-                        game += ":relaxed:";
+                        game.append(":relaxed:");
                         break;
                     case 10:
-                        game += ":blush:";
+                        game.append(":blush:");
                         break;
                     case 11:
-                        game += ":innocent:";
+                        game.append(":innocent:");
                         break;
                     case 12:
-                        game += ":slight_smile:";
+                        game.append(":slight_smile:");
                         break;
                 }
             }
-            game += "\n";
+            game.append("\n");
         }
-        return game;
+        return game.toString();
     }
-    public static int[][] getDefaultBoard() {
-        int[][] board = new int[8][8];
+    public static byte[][] getDefaultBoard() {
+        byte[][] board = new byte[8][8];
 
         board[0][0] = 10;
         board[0][1] = 8;

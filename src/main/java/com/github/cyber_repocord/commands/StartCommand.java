@@ -1,11 +1,14 @@
 package com.github.cyber_repocord.commands;
 
 import com.github.cyber_repocord.helperclasses.Command;
-import com.github.cyber_repocord.helperclasses.Game;
+import com.github.cyber_repocord.helperclasses.Invite;
+import com.github.cyber_repocord.helperclasses.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
 
+import javax.rmi.CORBA.Util;
+import java.awt.*;
 import java.util.Arrays;
 import java.util.List;
 
@@ -14,17 +17,60 @@ public class StartCommand implements Command {
     private final static String[] aliases = {"s"};
     @Override
     public void execute(GuildMessageReceivedEvent event, String[] args) {
-
-        int[][] board = Game.getDefaultBoard();
         EmbedBuilder builder = new EmbedBuilder();
-        builder.setTitle("Chess Game");
-        builder.setDescription(Game.getGameAsText(board));
+        if (args.length == 2) {
+            if (Utils.isMention(args[1], event.getGuild())) {
+                if (Utils.doesInviteExist(Utils.getIDFromMention(args[1]))) {
+                    builder = Utils.getPersonAlreadyHasInvite();
+                    builder.setAuthor(event.getAuthor().getAsTag(), null, event.getAuthor().getAvatarUrl());
+                } else {
+                    builder.setAuthor(event.getAuthor().getAsTag(), null, event.getAuthor().getAvatarUrl());
+                    builder.setTitle("Waiting for person to accept the invite");
+                    builder.setDescription("Waiting for " + args[1] + " to accept the invite with \"" + Utils.getPrefix() + "accept " + event.getAuthor().getAsMention() + "\", if you want to cancel invite type \"" + Utils.getPrefix() + "cancel\"\n(Note: the game chooses randomly whose turn is it, if you want to change it type \"" + Utils.getPrefix() + "start <user> <turn>\")");
+                    builder.setColor(new Color(0x0064C8));
+                    Utils.setInvite(new Invite(event.getAuthor().getAsTag(), Utils.getIDFromMention(args[1]), false, true));
+                }
+            } else {
+                builder = Utils.getIncorrectUsage();
+                builder.setAuthor(event.getAuthor().getAsTag(), null, event.getAuthor().getAvatarUrl());
+            }
+        } else if (args.length >= 3) {
+            if (Utils.isMention(args[1], event.getGuild())) {
+                if (Utils.doesInviteExist(Utils.getIDFromMention(args[1]))) {
+                    builder = Utils.getPersonAlreadyHasInvite();
+                    builder.setAuthor(event.getAuthor().getAsTag(), null, event.getAuthor().getAvatarUrl());
+                } else {
+                    if (args[2].equalsIgnoreCase("true")) {
+                        builder.setAuthor(event.getAuthor().getAsTag(), null, event.getAuthor().getAvatarUrl());
+                        builder.setTitle("Waiting for person to accept the invite");
+                        builder.setDescription("Waiting for " + args[1] + " to accept the invite with \"" + Utils.getPrefix() + "accept " + event.getAuthor().getAsMention() + "\", if you want to cancel invite type \"" + Utils.getPrefix() + "cancel\"\n(Note: the person inviting you will be moving first)");
+                        builder.setColor(new Color(0x0064C8));
+                        Utils.setInvite(new Invite(event.getAuthor().getAsTag(), Utils.getIDFromMention(args[1]), true, false));
+                    } else if (args[2].equalsIgnoreCase("false")) {
+                        builder.setAuthor(event.getAuthor().getAsTag(), null, event.getAuthor().getAvatarUrl());
+                        builder.setTitle("Waiting for person to accept the invite");
+                        builder.setDescription("Waiting for " + args[1] + " to accept the invite with \"" + Utils.getPrefix() + "accept " + event.getAuthor().getAsMention() + "\", if you want to cancel invite type \"" + Utils.getPrefix() + "cancel\"\n(Note: the person accepting the invite will be moving first)");
+                        builder.setColor(new Color(0x0064C8));
+                        Utils.setInvite(new Invite(event.getAuthor().getAsTag(), Utils.getIDFromMention(args[1]), true, false));
+                    } else {
+                        builder = Utils.getIncorrectUsage();
+                        builder.setAuthor(event.getAuthor().getAsTag(), null, event.getAuthor().getAvatarUrl());
+                    }
+                }
+            } else {
+                builder = Utils.getIncorrectUsage();
+                builder.setAuthor(event.getAuthor().getAsTag(), null, event.getAuthor().getAvatarUrl());
+            }
+        } else {
+            builder = Utils.getIncorrectUsage();
+            builder.setAuthor(event.getAuthor().getAsTag(), null, event.getAuthor().getAvatarUrl());
+        }
         event.getChannel().sendMessage(builder.build()).queue();
     }
 
     @Override
     public void execute(PrivateMessageReceivedEvent event, String[] args) {
-
+        event.getChannel().sendMessage("This feature is not working yet.").queue();
     }
 
     @Override
@@ -55,7 +101,7 @@ public class StartCommand implements Command {
 
     @Override
     public boolean isPrivate(boolean only) {
-        return false;
+        return !only;
     }
 
     @Override
