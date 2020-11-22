@@ -11,29 +11,29 @@ import java.awt.*;
 import java.util.Arrays;
 import java.util.List;
 
-public class CancelCommand implements Command {
+public class DenyCommand implements Command {
     private static boolean enabled = true;
-    private final static String[] aliases = {"c"};
+    private final static String[] aliases = {"d"};
     @Override
     public void execute(GuildMessageReceivedEvent event, String[] args) {
         EmbedBuilder builder = new EmbedBuilder();
         if (Utils.doesInviteExist(event.getAuthor().getId())) {
             Invite invite = Utils.getInvite(event.getAuthor().getId());
-            if (!invite.getInviter().equals(event.getAuthor().getId())) {
-                builder.setTitle("No invites to cancel");
-                builder.setDescription("You don't have outgoing invites!");
+            if (!invite.getInvitee().equals(event.getAuthor().getId())) {
+                builder.setTitle("No invites to deny");
+                builder.setDescription("You don't have any pending invites!");
                 builder.setAuthor(event.getAuthor().getAsTag(), null, event.getAuthor().getAvatarUrl());
                 builder.setColor(new Color(0xC80000));
             } else {
-                builder.setTitle("Invite canceled");
-                builder.setDescription("You have canceled invite to  <@!" + invite.getInviter() + ">.");
+                builder.setTitle("Invite denied");
+                builder.setDescription("You have denied <@!" + invite.getInviter() + ">'s invite.");
                 builder.setAuthor(event.getAuthor().getAsTag(), null, event.getAuthor().getAvatarUrl());
                 builder.setColor(new Color(0x0064C8));
                 Utils.delInvite(invite);
             }
         } else {
-            builder.setTitle("No invites to cancel");
-            builder.setDescription("You don't have outgoing invites!");
+            builder.setTitle("No invite to deny");
+            builder.setDescription("You don't have pending invite!");
             builder.setAuthor(event.getAuthor().getAsTag(), null, event.getAuthor().getAvatarUrl());
             builder.setColor(new Color(0xC80000));
         }
@@ -47,12 +47,12 @@ public class CancelCommand implements Command {
 
     @Override
     public String getName() {
-        return "Cancel Invite Command";
+        return "Deny Command";
     }
 
     @Override
     public String getDesc() {
-        return "Cancels invitation to game sent by you";
+        return "Denies invitation to game";
     }
 
     @Override
@@ -63,7 +63,7 @@ public class CancelCommand implements Command {
 
     @Override
     public String getCommand() {
-        return "cancel";
+        return "deny";
     }
 
     @Override
@@ -73,12 +73,12 @@ public class CancelCommand implements Command {
 
     @Override
     public boolean isPrivate(boolean only) {
-        return !only;
+        return false;
     }
 
     @Override
     public void setEnabled(boolean enabled) {
-        CancelCommand.enabled = enabled;
+        DenyCommand.enabled = enabled;
     }
 
     @Override

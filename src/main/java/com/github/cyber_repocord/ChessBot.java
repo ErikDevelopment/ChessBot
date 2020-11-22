@@ -17,8 +17,6 @@ public class ChessBot {
     private static JDABuilder shardBuilder;
     private static JDA jda;
     public static void main(String[] args) throws Exception {
-
-
         shardBuilder = JDABuilder.createDefault(Utils.getToken());
         shardBuilder.addEventListeners(new CommandEventListener(), new ReadyEventListener());
         for (int i = 0; i < getShardsCount(); i++)

@@ -4,8 +4,8 @@ package com.github.cyber_repocord.helperclasses;
 import com.github.cyber_repocord.ChessBot;
 import com.github.cyber_repocord.commands.*;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
 
 import java.awt.*;
 import java.time.Duration;
@@ -13,7 +13,7 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
+import java.util.regex.Pattern;
 
 public class Utils {
     // Private constructor
@@ -32,12 +32,14 @@ public class Utils {
 
     // Static constructors
     static {
+        // Add commands to the list
         commands.add(new HelpCommand());
         commands.add(new InfoCommand());
         commands.add(new SupportCommand());
         commands.add(new StartCommand());
         commands.add(new CancelCommand());
         commands.add(new AcceptCommand());
+        commands.add(new DenyCommand());
     }
 
     // Commands
@@ -61,35 +63,20 @@ public class Utils {
     public static String getToken() {
         return TOKEN;
     }
-    public static boolean isMention(String text, Guild guild) {
-        if (text.startsWith("<@!") && text.endsWith(">") && text.length() == 22) {
-            try {
-                long result = Long.parseLong(Objects.requireNonNull(getIDFromMention(text)));
-                User user = ChessBot.getJDA().getUserById(result);
-                if (user == null) return false;
-                else return guild.getMember(user) != null;
-            } catch (NullPointerException e) {
-                return false;
-            }
-        } else if (text.startsWith("<@") && text.endsWith(">") && text.length() == 21) {
-            try {
-                long result = Long.parseLong(Objects.requireNonNull(getIDFromMention(text)));
-                User user = ChessBot.getJDA().getUserById(result);
-                if (user == null) return false;
-                else return guild.getMember(user) != null;
-            } catch (NullPointerException e) {
-                return false;
-            }
-        } else return false;
-    }
-    public static String getIDFromMention(String text) {
-        if (text.length() == 22) {
-            return text.substring(3, 21);
-        } else if (text.length() == 21) {
-            return text.substring(2, 20);
-        } else {
-            return null;
+    public static boolean isMention(Message message) {
+        String[] args = message.getContentRaw().split(" ");
+        if (args.length < 2) return false;
+        if (!Pattern.matches("<@[0-9]{18}>", args[1]) && !Pattern.matches("<@![0-9]{18}>", args[1])) return false;
+        for (Member member : message.getMentionedMembers()) {
+            return true;
         }
+        return false;
+    }
+    public static String getIDFromMention(Message message) {
+        for (Member member : message.getMentionedMembers()) {
+            return member.getId();
+        }
+        return null;
     }
 
     // Pre-built embeds
@@ -103,7 +90,7 @@ public class Utils {
     public static EmbedBuilder getPersonAlreadyHasInvite() {
         final EmbedBuilder builder = new EmbedBuilder();
         builder.setTitle("Cannot invite!");
-        builder.setDescription("The person already has an ingoing or ongoing invite, tell him to cancel it or deny it.");
+        builder.setDescription("Either you or the person already have an outgoing or ingoing invite, cancel it or deny it.");
         builder.setColor(new Color(0xC80000));
         return builder;
     }
@@ -118,27 +105,26 @@ public class Utils {
     public static void setGame(String channelID, Game game) {
         games.put(channelID, game);
     }
-
     // Invites utils
     public static boolean doesInviteExist(String key) {
         if (invites.containsKey(key)) return Duration.between(invites.get(key).getTime(), OffsetDateTime.now()).getSeconds() < 5 * 60;
         else return false;
-    }
-    public static boolean isInviteValid(String invitee, String inviter) {
-        if (invites.containsKey(invitee)) {
-            Invite invite = invites.get(invitee);
-            return invite.getInviter().equals(inviter);
-        } else {
-            return false;
-        }
     }
     public static Invite getInvite(String invitee) {
         return invites.get(invitee);
     }
     public static void setInvite(Invite invite) {
         invites.put(invite.getInvitee(), invite);
+        invites.put(invite.getInviter(), invite);
     }
-
+    public static void delInvite(Invite invite) {
+        if (doesInviteExist(invite.getInviter())) {
+            invites.remove(invite.getInviter());
+        }
+        if (doesInviteExist(invite.getInvitee())) {
+            invites.remove(invite.getInvitee());
+        }
+    }
     // Stats
     public static int getPlayedGamesCount() {
         return 0;

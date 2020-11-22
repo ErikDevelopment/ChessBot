@@ -1,9 +1,13 @@
 package com.github.cyber_repocord.commands;
 
 import com.github.cyber_repocord.helperclasses.Command;
+import com.github.cyber_repocord.helperclasses.Invite;
+import com.github.cyber_repocord.helperclasses.Utils;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
 
+import java.awt.*;
 import java.util.Arrays;
 import java.util.List;
 
@@ -12,7 +16,28 @@ public class AcceptCommand implements Command {
     private final static String[] aliases = {"ac"};
     @Override
     public void execute(GuildMessageReceivedEvent event, String[] args) {
-
+        EmbedBuilder builder = new EmbedBuilder();
+        if (Utils.doesInviteExist(event.getAuthor().getId())) {
+            Invite invite = Utils.getInvite(event.getAuthor().getId());
+            if (!invite.getInvitee().equals(event.getAuthor().getId())) {
+                builder.setTitle("No invite to accept");
+                builder.setDescription("You don't have any pending invites!");
+                builder.setAuthor(event.getAuthor().getAsTag(), null, event.getAuthor().getAvatarUrl());
+                builder.setColor(new Color(0xC80000));
+            } else {
+                builder.setTitle("Invite accepted!");
+                builder.setDescription("You have accepted <@!" + invite.getInviter() + ">'s invite.");
+                builder.setAuthor(event.getAuthor().getAsTag(), null, event.getAuthor().getAvatarUrl());
+                builder.setColor(new Color(0x0064C8));
+                Utils.delInvite(invite);
+            }
+        } else {
+            builder.setTitle("No invite to accept");
+            builder.setDescription("You don't have pending invite!");
+            builder.setAuthor(event.getAuthor().getAsTag(), null, event.getAuthor().getAvatarUrl());
+            builder.setColor(new Color(0xC80000));
+        }
+        event.getChannel().sendMessage(builder.build()).queue();
     }
 
     @Override
