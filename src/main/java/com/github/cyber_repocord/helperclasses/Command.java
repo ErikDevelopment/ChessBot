@@ -6,7 +6,7 @@ import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
 import java.util.List;
 
 public interface Command {
-    void execute(GuildMessageReceivedEvent event, String[] args);
+    void execute(GuildMessageReceivedEvent event, String[] args) throws Exception;
     void execute(PrivateMessageReceivedEvent event, String[] args);
     String getName();
     String getDesc();

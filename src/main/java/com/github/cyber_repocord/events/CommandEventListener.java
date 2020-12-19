@@ -1,13 +1,14 @@
 package com.github.cyber_repocord.events;
 
-import com.github.cyber_repocord.ChessBot;
 import com.github.cyber_repocord.helperclasses.Command;
 import com.github.cyber_repocord.helperclasses.Utils;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 
+import java.awt.*;
 import java.util.List;
 
 public class CommandEventListener extends ListenerAdapter {
@@ -31,7 +32,20 @@ public class CommandEventListener extends ListenerAdapter {
             return;
         }
         for (Command command : commands) {
-            if (command.isEnabled() && !command.isPrivate(true) && (command.getCommand().equalsIgnoreCase(commandAsText) || command.getAliases().contains(commandAsText.toLowerCase()))) command.execute(event, args);
+            if (command.isEnabled() && !command.isPrivate(true) && (command.getCommand().equalsIgnoreCase(commandAsText) || command.getAliases().contains(commandAsText.toLowerCase()))) {
+                try {
+                    command.execute(event, args);
+                } catch (Exception e) {
+                    EmbedBuilder builder = new EmbedBuilder();
+                    builder.setAuthor(event.getAuthor().getAsTag(), null, event.getAuthor().getAvatarUrl());
+                    builder.setTitle("Error");
+                    builder.setDescription("Couldn't execute command: An error occurred. This is a bug, please report it on our support server (" + Utils.getPrefix() + "support).\nError message: `" + e.getMessage() + "`");
+                    builder.setColor(new Color(0xC80000));
+
+                    event.getChannel().sendMessage(builder.build()).queue();
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
@@ -52,7 +66,20 @@ public class CommandEventListener extends ListenerAdapter {
             return;
         }
         for (Command command : commands) {
-            if (command.isEnabled() && command.isPrivate(false) && (command.getCommand().equalsIgnoreCase(commandAsText) || command.getAliases().contains(commandAsText.toLowerCase()))) command.execute(event, args);
+            if (command.isEnabled() && command.isPrivate(false) && (command.getCommand().equalsIgnoreCase(commandAsText) || command.getAliases().contains(commandAsText.toLowerCase()))) {
+                try {
+                    command.execute(event, args);
+                } catch (Exception e) {
+                    EmbedBuilder builder = new EmbedBuilder();
+                    builder.setAuthor(event.getAuthor().getAsTag(), null, event.getAuthor().getAvatarUrl());
+                    builder.setTitle("Error");
+                    builder.setDescription("Couldn't execute command: An error occurred. This is a bug. Please report it on our support server (" + Utils.getPrefix() + "support).\nError message: `" + e.getMessage() + "`");
+                    builder.setColor(new Color(0xC80000));
+
+                    event.getChannel().sendMessage(builder.build()).queue();
+                    e.printStackTrace();
+                }
+            }
         }
     }
 }

@@ -15,7 +15,7 @@ public class CancelCommand implements Command {
     private static boolean enabled = true;
     private final static String[] aliases = {"c"};
     @Override
-    public void execute(GuildMessageReceivedEvent event, String[] args) {
+    public void execute(GuildMessageReceivedEvent event, String[] args) throws Exception {
         EmbedBuilder builder = new EmbedBuilder();
         if (Utils.doesInviteExist(event.getAuthor().getId())) {
             Invite invite = Utils.getInvite(event.getAuthor().getId());
@@ -25,8 +25,8 @@ public class CancelCommand implements Command {
                 builder.setAuthor(event.getAuthor().getAsTag(), null, event.getAuthor().getAvatarUrl());
                 builder.setColor(new Color(0xC80000));
             } else {
-                builder.setTitle("Invite canceled");
-                builder.setDescription("You have canceled invite to  <@!" + invite.getInviter() + ">.");
+                builder.setTitle("Invite cancelled");
+                builder.setDescription("You have cancelled invite to  <@!" + invite.getInviter() + ">.");
                 builder.setAuthor(event.getAuthor().getAsTag(), null, event.getAuthor().getAvatarUrl());
                 builder.setColor(new Color(0x0064C8));
                 Utils.delInvite(invite);

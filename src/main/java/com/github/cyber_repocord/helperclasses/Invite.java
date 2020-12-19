@@ -15,11 +15,9 @@ public class Invite {
         this.random = random;
         time = OffsetDateTime.now();
     }
-
     public String getInvitee() {
         return invitee;
     }
-
     public String getInviter() {
         return inviter;
     }

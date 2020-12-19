@@ -13,11 +13,10 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class ChessBot {
-    private static byte status;
-    private static JDABuilder shardBuilder;
-    private static JDA jda;
+    private static byte status = 1;
+    private static final boolean changesStatus = true;
     public static void main(String[] args) throws Exception {
-        shardBuilder = JDABuilder.createDefault(Utils.getToken());
+        JDABuilder shardBuilder = JDABuilder.createDefault(Utils.getToken());
         shardBuilder.addEventListeners(new CommandEventListener(), new ReadyEventListener());
         for (int i = 0; i < getShardsCount(); i++)
         {
@@ -25,17 +24,13 @@ public class ChessBot {
                     .build();
         }
         shardBuilder.setActivity(Activity.watching(Utils.getPrefix() + "help"));
-        jda = shardBuilder.build();
-        startChangingStatuses(jda, (byte) 0);
-    }
-    public static JDA getJDA() {
-        return jda;
+        JDA jda = shardBuilder.build();
+        if (changesStatus) startChangingStatuses(jda);
     }
     public static int getShardsCount() {
         return 0;
     }
-    private static void startChangingStatuses(JDA jda, byte status) {
-        ChessBot.status = status;
+    private static void startChangingStatuses(JDA jda) {
         Timer t = new Timer();
         t.schedule(new TimerTask() {
             @Override
@@ -52,10 +47,9 @@ public class ChessBot {
                         jda.getPresence().setActivity(Activity.watching("restarted " + durationInSec / 3600 + "h " + durationInSec % 3600 / 60 + "m " + durationInSec % 60 + "s ago"));
                         break;
                     case 3:
-                        jda.getPresence().setActivity(Activity.playing("-> " + Utils.getPlayedGamesCount() + " games right now"));
+                        jda.getPresence().setActivity(Activity.playing("-> " + Utils.getPlayedGamesCount() + " games of chess right now"));
                         break;
                 }
-
             }
         }, 3000L, 3000L);
     }

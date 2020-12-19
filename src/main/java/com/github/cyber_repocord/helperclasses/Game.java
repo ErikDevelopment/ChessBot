@@ -1,5 +1,10 @@
 package com.github.cyber_repocord.helperclasses;
 
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+
+import java.io.File;
+import java.io.IOException;
 import java.util.Random;
 
 public class Game {
@@ -27,7 +32,7 @@ public class Game {
 
     turn == true -> white
     turn == false -> black
-            /|
+             |
             \/
      */
     private boolean turn = true;
@@ -221,5 +226,15 @@ public class Game {
         board[7][7] = 4;
 
         return board;
+    }
+    public synchronized File getAsImage() throws IOException, IllegalArgumentException {
+        return ImageHelper.getImageFromBoard(board, Utils.getTempFilePath());
+    }
+    public void sendAsEmbed(GuildMessageReceivedEvent event) throws IOException, IllegalArgumentException {
+        EmbedBuilder builder = new EmbedBuilder();
+        builder.setTitle("Game");
+        builder.setImage("attachment://game.png");
+        
+        event.getChannel().sendMessage(builder.build()).addFile(getAsImage(), "game.png").queue();
     }
 }

@@ -1,6 +1,7 @@
 package com.github.cyber_repocord.commands;
 
 import com.github.cyber_repocord.helperclasses.Command;
+import com.github.cyber_repocord.helperclasses.ImageHelper;
 import com.github.cyber_repocord.helperclasses.Invite;
 import com.github.cyber_repocord.helperclasses.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -8,7 +9,10 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
 
 import java.awt.*;
+import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.List;
 
 public class DenyCommand implements Command {

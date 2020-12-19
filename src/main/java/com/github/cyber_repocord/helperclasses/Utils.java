@@ -23,6 +23,7 @@ public class Utils {
     private static final String PREFIX = "ch!";
     private static final boolean beta = true;
     private static final String betaChannel = "770219287414571068";
+    private static final String tempFilePath = "C:/temp/temp.png";
     public static final OffsetDateTime restartDate = OffsetDateTime.now();
 
     // Fields
@@ -47,6 +48,8 @@ public class Utils {
         return commands;
     }
 
+    // Errors
+
     // Other
     public static boolean isBeta() {
     return beta;
@@ -57,6 +60,7 @@ public class Utils {
     public static String getPrefix() {
         return PREFIX;
     }
+    public static String getTempFilePath() { return tempFilePath;}
     public static OffsetDateTime getRestartDate() {
         return restartDate;
     }
@@ -105,6 +109,7 @@ public class Utils {
     public static void setGame(String channelID, Game game) {
         games.put(channelID, game);
     }
+
     // Invites utils
     public static boolean doesInviteExist(String key) {
         if (invites.containsKey(key)) return Duration.between(invites.get(key).getTime(), OffsetDateTime.now()).getSeconds() < 5 * 60;
