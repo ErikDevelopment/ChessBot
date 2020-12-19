@@ -1,33 +1,31 @@
 package com.github.cyber_repocord.helperclasses;
 
-import java.time.OffsetDateTime;
-
 public class Invite {
     private final boolean turn;
     private final boolean random;
     private final String inviter;
     private final String invitee;
-    private final OffsetDateTime time;
+    private final long time;
     public Invite(String inviter, String invitee, boolean turn, boolean random) {
         this.inviter = inviter;
         this.invitee = invitee;
         this.turn = turn;
         this.random = random;
-        time = OffsetDateTime.now();
+        time = System.currentTimeMillis();
     }
-    public String getInvitee() {
+    public final String getInvitee() {
         return invitee;
     }
-    public String getInviter() {
+    public final String getInviter() {
         return inviter;
     }
-    public boolean isTurn() {
+    public final boolean isTurn() {
         return turn;
     }
-    public boolean isRandom() {
+    public final boolean isRandom() {
         return random;
     }
-    public OffsetDateTime getTime() {
+    public final long getTime() {
         return time;
     }
 }

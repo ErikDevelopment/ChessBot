@@ -21,7 +21,7 @@ public class DenyCommand implements Command {
     @Override
     public void execute(GuildMessageReceivedEvent event, String[] args) {
         EmbedBuilder builder = new EmbedBuilder();
-        if (Utils.doesInviteExist(event.getAuthor().getId())) {
+        if (Utils.doesInviteExistCheckTime(event.getAuthor().getId())) {
             Invite invite = Utils.getInvite(event.getAuthor().getId());
             if (!invite.getInvitee().equals(event.getAuthor().getId())) {
                 builder.setTitle("No invites to deny");

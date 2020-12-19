@@ -19,7 +19,7 @@ public class StartCommand implements Command {
         EmbedBuilder builder = new EmbedBuilder();
         if (args.length == 2) {
             if (Utils.isMention(event.getMessage())) {
-                if (Utils.doesInviteExist(Utils.getIDFromMention(event.getMessage())) || Utils.doesInviteExist(event.getAuthor().getId())) {
+                if (Utils.doesInviteExistCheckTime(Utils.getIDFromMention(event.getMessage())) || Utils.doesInviteExist(event.getAuthor().getId())) {
                     builder = Utils.getPersonAlreadyHasInvite();
                     builder.setAuthor(event.getAuthor().getAsTag(), null, event.getAuthor().getAvatarUrl());
                 } else {
@@ -35,7 +35,7 @@ public class StartCommand implements Command {
             }
         } else if (args.length >= 3) {
             if (Utils.isMention(event.getMessage())) {
-                if (Utils.doesInviteExist(Utils.getIDFromMention(event.getMessage())) || Utils.doesInviteExist(event.getAuthor().getId())) {
+                if (Utils.doesInviteExistCheckTime(Utils.getIDFromMention(event.getMessage())) || Utils.doesInviteExist(event.getAuthor().getId())) {
                     builder = Utils.getPersonAlreadyHasInvite();
                     builder.setAuthor(event.getAuthor().getAsTag(), null, event.getAuthor().getAvatarUrl());
                 } else {

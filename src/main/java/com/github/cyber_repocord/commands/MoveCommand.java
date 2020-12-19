@@ -2,76 +2,76 @@ package com.github.cyber_repocord.commands;
 
 import com.github.cyber_repocord.helperclasses.Command;
 import com.github.cyber_repocord.helperclasses.Game;
-import com.github.cyber_repocord.helperclasses.Invite;
 import com.github.cyber_repocord.helperclasses.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
 
 import java.awt.*;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-public class AcceptCommand implements Command {
+public class MoveCommand implements Command {
     private static boolean enabled = true;
-    private final static String[] aliases = {"ac"};
+    private final static String[] aliases = {};
     @Override
-    public void execute(GuildMessageReceivedEvent event, String[] args) throws IOException, IllegalArgumentException {
-        EmbedBuilder builder = new EmbedBuilder();
-        if (Utils.doesInviteExistCheckTime(event.getAuthor().getId())) {
-            Invite invite = Utils.getInvite(event.getAuthor().getId());
-            if (!invite.getInvitee().equals(event.getAuthor().getId())) {
-                builder.setTitle("No invite to accept");
-                builder.setDescription("You have only an outgoing invite!");
+    public void execute(GuildMessageReceivedEvent event, String[] args) throws Exception {
+        if (Utils.doesGameExist(event.getAuthor().getId())) {
+            Game game = Utils.getGame(event.getAuthor().getId());
+            if (!(game.isTurn() && game.getPlayer1().equals(event.getAuthor().getId()))) {
+                EmbedBuilder builder = new EmbedBuilder();
+                builder.setTitle("Not your turn!");
+                builder.setDescription("It's not your turn, wait for another user to move!");
                 builder.setAuthor(event.getAuthor().getAsTag(), null, event.getAuthor().getAvatarUrl());
                 builder.setColor(new Color(0xC80000));
                 event.getChannel().sendMessage(builder.build()).queue();
-            } else {
-                Utils.delInvite(invite);
-                Game game;
-                if (invite.isRandom()) {
-                    game = new Game(invite.getInvitee(), invite.getInviter(), event.getChannel().getId());
+                return;
+            }
+            try {
+                if (game.makeMove(args)) {
+                    System.out.println("a");
                 } else {
-                    game = new Game(invite.getInvitee(), invite.getInviter(), event.getChannel().getId(), invite.isTurn());
+                    System.out.println("b");
                 }
                 game.sendAsEmbed(event);
                 Utils.setGame(game);
+            } catch (IllegalArgumentException e) {
+                event.getChannel().sendMessage(Utils.getIncorrectUsage().build()).queue();
             }
         } else {
-            builder.setTitle("No invite to accept");
-            builder.setDescription("You don't have pending invite!");
+            EmbedBuilder builder = new EmbedBuilder();
+            builder.setTitle("No game");
+            builder.setDescription("You are not playing a game yet!");
             builder.setAuthor(event.getAuthor().getAsTag(), null, event.getAuthor().getAvatarUrl());
             builder.setColor(new Color(0xC80000));
             event.getChannel().sendMessage(builder.build()).queue();
         }
-
     }
 
     @Override
-    public void execute(PrivateMessageReceivedEvent event, String[] args) {
+    public void execute(PrivateMessageReceivedEvent event, String[] args) throws Exception {
 
     }
 
     @Override
     public String getName() {
-        return "Accept Command";
+        return "Move Command";
     }
 
     @Override
     public String getDesc() {
-        return "Accepts invitation to game";
+        return "Moves your chess piece";
     }
 
     @Override
     public String getHelp() {
-        // TODO: 30/10/2020 help message
+        // TODO
         return "TO DO";
     }
 
     @Override
     public String getCommand() {
-        return "accept";
+        return "move";
     }
 
     @Override
@@ -86,7 +86,7 @@ public class AcceptCommand implements Command {
 
     @Override
     public void setEnabled(boolean enabled) {
-        AcceptCommand.enabled = enabled;
+        MoveCommand.enabled = enabled;
     }
 
     @Override

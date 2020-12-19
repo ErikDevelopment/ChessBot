@@ -8,7 +8,6 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 
 import java.awt.*;
-import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,7 +22,7 @@ public class Utils {
     private static final String PREFIX = "ch!";
     private static final boolean beta = true;
     private static final String betaChannel = "770219287414571068";
-    private static final String tempFilePath = "C:/temp/temp.png";
+    private static final String tempFilePath = "/Users/maxgrzymala/temp.png";
     public static final OffsetDateTime restartDate = OffsetDateTime.now();
 
     // Fields
@@ -35,6 +34,8 @@ public class Utils {
     static {
         // Add commands to the list
         commands.add(new HelpCommand());
+        commands.add(new ShowCommand());
+        commands.add(new MoveCommand());
         commands.add(new InfoCommand());
         commands.add(new SupportCommand());
         commands.add(new StartCommand());
@@ -48,9 +49,7 @@ public class Utils {
         return commands;
     }
 
-    // Errors
-
-    // Other
+    // Utilities
     public static boolean isBeta() {
     return beta;
 }
@@ -71,7 +70,7 @@ public class Utils {
         String[] args = message.getContentRaw().split(" ");
         if (args.length < 2) return false;
         if (!Pattern.matches("<@[0-9]{18}>", args[1]) && !Pattern.matches("<@![0-9]{18}>", args[1])) return false;
-        for (Member member : message.getMentionedMembers()) {
+        for (Member ignored : message.getMentionedMembers()) {
             return true;
         }
         return false;
@@ -100,20 +99,39 @@ public class Utils {
     }
 
     // Game utils
-    public static boolean getIfGameExists(String channelID) {
-        return games.containsKey(channelID);
+    public static boolean doesGameExist(Game game) {
+        return games.containsKey(game.getPlayer1()) && games.containsKey(game.getPlayer2());
     }
-    public static Game getGame(String channelID) {
-        return games.get(channelID);
+    public static boolean doesGameExist(String id) {
+        return games.containsKey(id);
     }
-    public static void setGame(String channelID, Game game) {
-        games.put(channelID, game);
+    public static Game getGame(String memberID) {
+        return games.get(memberID);
+    }
+    public static void setGame(Game game) {
+        games.put(game.getPlayer1(), game);
+        games.put(game.getPlayer2(), game);
+    }
+    public static void delGame(Game game) {
+        if (doesGameExist(game)) {
+            games.remove(game.getPlayer1());
+            games.remove(game.getPlayer2());
+        }
     }
 
     // Invites utils
-    public static boolean doesInviteExist(String key) {
-        if (invites.containsKey(key)) return Duration.between(invites.get(key).getTime(), OffsetDateTime.now()).getSeconds() < 5 * 60;
-        else return false;
+    public static boolean doesInviteExistCheckTime(String id) {
+        if (invites.containsKey(id)) {
+            if (System.currentTimeMillis() - invites.get(id).getTime() < 5 * 6000) {
+                return true;
+            } else {
+                delInvite(id);
+            }
+        }
+        return false;
+    }
+    public static boolean doesInviteExist(String id) {
+        return invites.containsKey(id);
     }
     public static Invite getInvite(String invitee) {
         return invites.get(invitee);
@@ -123,16 +141,20 @@ public class Utils {
         invites.put(invite.getInviter(), invite);
     }
     public static void delInvite(Invite invite) {
-        if (doesInviteExist(invite.getInviter())) {
-            invites.remove(invite.getInviter());
-        }
-        if (doesInviteExist(invite.getInvitee())) {
-            invites.remove(invite.getInvitee());
+        delInvite(invite.getInvitee());
+    }
+    public static void delInvite(String id) {
+        if (doesInviteExist(id)) {
+            String id1 = invites.get(id).getInviter();
+            String id2 = invites.get(id).getInvitee();
+            invites.remove(id1);
+            invites.remove(id2);
         }
     }
+
     // Stats
     public static int getPlayedGamesCount() {
-        return 0;
+        return games.size() / 2;
     }
     public static int getShardsCount() {
         return ChessBot.getShardsCount();

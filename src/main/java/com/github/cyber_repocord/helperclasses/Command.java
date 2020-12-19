@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface Command {
     void execute(GuildMessageReceivedEvent event, String[] args) throws Exception;
-    void execute(PrivateMessageReceivedEvent event, String[] args);
+    void execute(PrivateMessageReceivedEvent event, String[] args) throws Exception;
     String getName();
     String getDesc();
     String getHelp();

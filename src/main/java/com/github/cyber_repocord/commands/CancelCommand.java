@@ -17,7 +17,7 @@ public class CancelCommand implements Command {
     @Override
     public void execute(GuildMessageReceivedEvent event, String[] args) throws Exception {
         EmbedBuilder builder = new EmbedBuilder();
-        if (Utils.doesInviteExist(event.getAuthor().getId())) {
+        if (Utils.doesInviteExistCheckTime(event.getAuthor().getId())) {
             Invite invite = Utils.getInvite(event.getAuthor().getId());
             if (!invite.getInviter().equals(event.getAuthor().getId())) {
                 builder.setTitle("No invites to cancel");

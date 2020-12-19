@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
 import java.awt.*;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 public class InfoCommand implements Command {
     private static boolean enabled = true;
@@ -23,9 +24,9 @@ public class InfoCommand implements Command {
 
         builder.setTitle("**Info**");
 
-        builder.addField(new MessageEmbed.Field("Authors", "[" + author + " - Main dev](https://discord.gg/7scMhD6 \"Click to join the official support server\")\n[" + author1 + " - Graphic designer](https://discord.gg/7scMhD6 \"Click to join the official support server\")", false));
+        builder.addField(new MessageEmbed.Field("Authors", "[" + author + " - Main dev](https://discord.gg/7scMhD6 \"Click to join the official support server\")\n[" + author1 + " - Chess designer](https://discord.gg/7scMhD6 \"Click to join the official support server\")", false));
         builder.addField(new MessageEmbed.Field("Library", "[JDA (4.2.0_168)](https://github.com/DV8FromTheWorld/JDA \"Click to open GitHub repository\")", false));
-        builder.addField(new MessageEmbed.Field("GitHub repository", "[Chess Bot](https://www.youtube.com/watch?v=dQw4w9WgXcQ \"Click to open GitHub repository\")", false));
+        builder.addField(new MessageEmbed.Field("GitHub repository", "[Chess Bot (Private for now)](https://github.com/Cyber-Repocord/ChessBot \"Click to open GitHub repository\")", false));
         builder.addField(new MessageEmbed.Field("Stats", "Guilds count: " + event.getJDA().getGuilds().toArray().length + "\nGames being played right now: " + Utils.getPlayedGamesCount() + "\nShards: " + Utils.getShardsCount(), false));
 
         builder.setThumbnail(event.getJDA().getSelfUser().getAvatarUrl());
@@ -45,7 +46,7 @@ public class InfoCommand implements Command {
         EmbedBuilder builder = new EmbedBuilder();
 
         String author1 = "FDLroxx#3963";
-        String author = event.getJDA().getUserById("542243770113064961").getAsTag();
+        String author = Objects.requireNonNull(event.getJDA().getUserById("542243770113064961")).getAsTag();
 
         builder.setTitle("**Info**");
 

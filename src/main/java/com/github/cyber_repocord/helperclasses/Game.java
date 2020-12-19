@@ -1,8 +1,10 @@
 package com.github.cyber_repocord.helperclasses;
 
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.Random;
@@ -36,10 +38,18 @@ public class Game {
             \/
      */
     private boolean turn = true;
+
     private String player1;
     private String player2;
+
+
+    private int movesCount = 0;
+    private int movesCount2 = 0;
+
     private String channelId;
-    private long moveTimeStamp = System.currentTimeMillis();
+
+    private final long startTime;
+
     public Game(String player1, String player2, String channelId) {
         this(player1, player2, channelId, true, true);
     }
@@ -68,24 +78,38 @@ public class Game {
             }
         }
         board = getDefaultBoard();
+        startTime = System.currentTimeMillis();
     }
-    public boolean makeMove(boolean player, Position fromTile, Position toTile) {
-        // check if every value is correct
-        if ((!player && ((board[fromTile.getX()][fromTile.getY()] < 7))) || (player && ((board[fromTile.getX()][fromTile.getY()] == 0) || (board[fromTile.getX()][fromTile.getY()] > 6))) || ((fromTile.getX() < 0 || toTile.getX() < 0) || (fromTile.getY() < 0 || toTile.getY() < 0) || (fromTile.getX() > 7 || toTile.getX() > 7) || (fromTile.getY() > 7 || toTile.getY() > 7)) || !isNotOccupiedBySamePlayer(turn, toTile)) return false;
+
+    // checks if player didn't make a move outside the board etc.
+    private boolean checkIfMoveIsCorrect(Position fromTile, Position toTile) {
+        return (!turn && ((board[fromTile.getX()][fromTile.getY()] < 7))) || (turn && ((board[fromTile.getX()][fromTile.getY()] == 0) || (board[fromTile.getX()][fromTile.getY()] > 6))) || ((fromTile.getX() < 0 || toTile.getX() < 0) || (fromTile.getY() < 0 || toTile.getY() < 0) || (fromTile.getX() > 7 || toTile.getX() > 7) || (fromTile.getY() > 7 || toTile.getY() > 7)) || !isNotOccupiedBySamePlayer(turn, toTile);
+    }
+
+    public boolean makeMove(Position fromTile, Position toTile) throws IllegalArgumentException {
+        if (!checkIfMoveIsCorrect(fromTile, toTile)) throw new IllegalArgumentException();
+
         int moveX = fromTile.getX() - toTile.getX(), moveY = fromTile.getY() - toTile.getY();
+
+        boolean allowed = false;
+
         switch (board[fromTile.getX()][fromTile.getY()]) {
             case 1:
-                if (moveX == 1 && moveY == 0) {
-                    return move(fromTile, toTile);
-                } else if (moveX == 2 && moveY == 0 && fromTile.getX() == 1) {
-                    return move(fromTile, toTile);
+                if (moveX == 0 && moveY == 1) {
+                    allowed = true;
+                } else if (moveX == 0 && moveY == 2 && fromTile.getY() == 1) {
+                    allowed = true;
+                } else if (moveX == 1 || moveX == -1 && moveY == 1) {
+                    allowed = true;
                 }
                 break;
             case 7:
-                if (moveX == -1 && moveY == 0) {
-                    return move(fromTile, toTile);
-                } else if (moveX == -2 && moveY == 0 && fromTile.getX() == 6) {
-                    return move(fromTile, toTile);
+                if (moveX == 0 && moveY == -1) {
+                    allowed = true;
+                } else if (moveX == 0 && moveY == -2 && fromTile.getY() == 6) {
+                    allowed = true;
+                } else if (moveX == 1 || moveX == -1 && moveY == -1) {
+                    allowed = true;
                 }
                 break;
             case 2:
@@ -104,24 +128,25 @@ public class Game {
             case 12:
                 break;
             default:
-                return false;
+                throw new IllegalArgumentException();
         }
-        return true;
+        if (allowed) move(fromTile, toTile);
+        else System.out.println("c");
+        return allowed;
     }
-    private boolean move(Position fromTile, Position toTile) {
-        board[toTile.getX()][toTile.getY()] = board[fromTile.getX()][fromTile.getY()];
-        board[fromTile.getX()][fromTile.getY()] = 0;
-        // always returns true (don't remove)
-        return true;
+
+    private void move(Position fromTile, Position toTile) {
+        board[toTile.getY()][toTile.getX()] = board[fromTile.getY()][fromTile.getX()];
+        board[fromTile.getY()][fromTile.getX()] = 0;
+
+        if (turn) {
+            movesCount++;
+        } else {
+            movesCount2++;
+        }
+        turn = !turn;
     }
-    public byte[][] getBoard() {
-        return board;
-    }
-    public void setBoard(byte[][] board) {
-        if (board.length != 8) return;
-        if (board[7].length != 8) return;
-        this.board = board;
-    }
+
     private boolean isNotOccupiedBySamePlayer(boolean turn, Position pos) {
         if (turn) {
             return board[pos.getX()][pos.getY()] <= 6 && board[pos.getX()][pos.getY()] >= 0;
@@ -130,62 +155,7 @@ public class Game {
             return board[pos.getX()][pos.getY()] >= 7 && board[pos.getX()][pos.getY()] <= 12;
         }
     }
-    public String getGameAsText() {
-        return getGameAsText(board);
-    }
-    public static String getGameAsText(byte[][] board) {
-        if (board.length != 8) return "";
-        if (board[7].length != 8) return "";
-        StringBuilder game = new StringBuilder();
-        for (int i = 0; i < board.length; i++) {
-            for (int j = 0; j < board[i].length; j++) {
-                switch (board[i][j]) {
-                    case 0:
-                        if ((i + (j % 2)) % 2 == 0) game.append(":white_large_square:");
-                        else game.append(":black_large_square:");
-                        break;
-                    case 1:
-                        game.append(":grinning:");
-                        break;
-                    case 2:
-                        game.append(":smiley:");
-                        break;
-                    case 3:
-                        game.append(":smile:");
-                        break;
-                    case 4:
-                        game.append(":grin:");
-                        break;
-                    case 5:
-                        game.append(":laughing:");
-                        break;
-                    case 6:
-                        game.append(":sweat_smile:");
-                        break;
-                    case 7:
-                        game.append(":joy:");
-                        break;
-                    case 8:
-                        game.append(":rofl:");
-                        break;
-                    case 9:
-                        game.append(":relaxed:");
-                        break;
-                    case 10:
-                        game.append(":blush:");
-                        break;
-                    case 11:
-                        game.append(":innocent:");
-                        break;
-                    case 12:
-                        game.append(":slight_smile:");
-                        break;
-                }
-            }
-            game.append("\n");
-        }
-        return game.toString();
-    }
+
     public static byte[][] getDefaultBoard() {
         byte[][] board = new byte[8][8];
 
@@ -227,14 +197,119 @@ public class Game {
 
         return board;
     }
+
     public synchronized File getAsImage() throws IOException, IllegalArgumentException {
         return ImageHelper.getImageFromBoard(board, Utils.getTempFilePath());
     }
+
     public void sendAsEmbed(GuildMessageReceivedEvent event) throws IOException, IllegalArgumentException {
-        EmbedBuilder builder = new EmbedBuilder();
+        final EmbedBuilder builder = new EmbedBuilder();
         builder.setTitle("Game");
+        builder.addField(new MessageEmbed.Field("Players:", "White: <@" + player1 + ">\nBlack: <@" + player2 + ">", true));
+        builder.addField(new MessageEmbed.Field("Moves:", "White: " + movesCount + "\nBlack: " + movesCount2, true));
+        long millis = System.currentTimeMillis() - startTime;
+        long minutes = millis / 360000;
+        long seconds = (millis / 1000) - (minutes * 60);
+        String time = minutes + "m, " + seconds + "s";
+        builder.addField(new MessageEmbed.Field("Time:", time, true));
         builder.setImage("attachment://game.png");
-        
+        builder.setColor(new Color(0x0064C8));
         event.getChannel().sendMessage(builder.build()).addFile(getAsImage(), "game.png").queue();
+    }
+
+    public String getPlayer1() {
+        return player1;
+    }
+
+    public String getPlayer2() {
+        return player2;
+    }
+
+    public String getChannelId() {
+        return channelId;
+    }
+
+    public void setChannelId(String channelId) {
+        this.channelId = channelId;
+    }
+
+    public boolean makeMove(String args[]) throws IllegalArgumentException {
+        if (args.length <= 2) {
+            throw new IllegalArgumentException();
+        }
+        if (args[1].length() != 2 || args[2].length() != 2) {
+            throw new IllegalArgumentException();
+        }
+        Position pos1 = new Position(getNumFromNum(args[1].toCharArray()[0]) - 1, getNumFromLetter(args[1].toCharArray()[1]) - 1);
+        Position pos2 = new Position(getNumFromNum(args[2].toCharArray()[0]) - 1, getNumFromLetter(args[2].toCharArray()[1]) - 1);
+        return makeMove(pos1, pos2);
+    }
+    private int getNumFromLetter(char a) throws IllegalArgumentException {
+        int num;
+        switch (a) {
+            case 'a':
+                num = 1;
+                break;
+            case 'b':
+                num = 2;
+                break;
+            case 'c':
+                num = 3;
+                break;
+            case 'd':
+                num = 4;
+                break;
+            case 'e':
+                num = 5;
+                break;
+            case 'f':
+                num = 6;
+                break;
+            case 'g':
+                num = 7;
+                break;
+            case 'h':
+                num = 8;
+                break;
+            default:
+                throw new IllegalArgumentException();
+        }
+        return num;
+    }
+    private int getNumFromNum(char a) throws IllegalArgumentException{
+        int num;
+        switch (a) {
+            case '1':
+                num = 1;
+                break;
+            case '2':
+                num = 2;
+                break;
+            case '3':
+                num = 3;
+                break;
+            case '4':
+                num = 4;
+                break;
+            case '5':
+                num = 5;
+                break;
+            case '6':
+                num = 6;
+                break;
+            case '7':
+                num = 7;
+                break;
+            case '8':
+                num = 8;
+                break;
+            default:
+                throw new IllegalArgumentException();
+
+        }
+        return num;
+    }
+    public boolean isTurn() {
+        return turn;
     }
 }
